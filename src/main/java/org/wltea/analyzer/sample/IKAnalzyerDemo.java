@@ -1,7 +1,7 @@
 /**
  * IK 中文分词  版本 5.0.1
  * IK Analyzer release 5.0.1
- * 
+ *
  * Licensed to the Apache Software Foundation (ASF) under one or more
  * contributor license agreements.  See the NOTICE file distributed with
  * this work for additional information regarding copyright ownership.
@@ -20,8 +20,8 @@
  * 源代码由林良益(linliangyi2005@gmail.com)提供
  * 版权声明 2012，乌龙茶工作室
  * provided by Linliangyi and copyright 2012 by Oolong studio
- * 
- * 
+ *
+ *
  */
 package org.wltea.analyzer.sample;
 
@@ -35,6 +35,8 @@ import org.apache.lucene.analysis.tokenattributes.OffsetAttribute;
 import org.apache.lucene.analysis.tokenattributes.TypeAttribute;
 import org.elasticsearch.common.logging.ESLogger;
 import org.elasticsearch.common.logging.Loggers;
+import org.wltea.analyzer.cfg.Configuration;
+import org.wltea.analyzer.dic.Dictionary;
 import org.wltea.analyzer.lucene.IKAnalyzer;
 
 /**
@@ -44,30 +46,35 @@ import org.wltea.analyzer.lucene.IKAnalyzer;
  */
 public class IKAnalzyerDemo {
 
-    public static final ESLogger logger= Loggers.getLogger("ik-analyzer");
-    
+	public static final ESLogger logger= Loggers.getLogger("ik-analyzer");
+
 	public static void main(String[] args){
+		Dictionary.initial(new Configuration(null));
 		//构建IK分词器，使用smart分词模式
-		Analyzer analyzer = new IKAnalyzer(true);
-		
+		Analyzer analyzer = new IKAnalyzer(false);
+
 		//获取Lucene的TokenStream对象
-	    TokenStream ts = null;
+		TokenStream ts = null;
 		try {
-			ts = analyzer.tokenStream("myfield", new StringReader("WORLD ,.. html DATA</html>HELLO"));
-//			ts = analyzer.tokenStream("myfield", new StringReader("这是一个中文分词的例子，你可以直接运行它！IKAnalyer can analysis english text too"));
+//			ts = analyzer.tokenStream("myfield", new StringReader("WORLD ,.. html DATA</html>HELLO"));
+			ts = analyzer.tokenStream("myfield", new StringReader("这是一个中文分词的例子，你可以直接运行它！IKAnalyer can analysis english text too"));
+//			ts = analyzer.tokenStream("myfield2", new StringReader("苏35A"));
+
 			//获取词元位置属性
-		    OffsetAttribute  offset = ts.addAttribute(OffsetAttribute.class); 
-		    //获取词元文本属性
-		    CharTermAttribute term = ts.addAttribute(CharTermAttribute.class);
-		    //获取词元文本属性
-		    TypeAttribute type = ts.addAttribute(TypeAttribute.class);
-		    
-		    
-		    //重置TokenStream（重置StringReader）
-			ts.reset(); 
+			OffsetAttribute  offset = ts.addAttribute(OffsetAttribute.class);
+			//获取词元文本属性
+			CharTermAttribute term = ts.addAttribute(CharTermAttribute.class);
+			//获取词元文本属性
+			TypeAttribute type = ts.addAttribute(TypeAttribute.class);
+
+
+			//重置TokenStream（重置StringReader）
+			ts.reset();
 			//迭代获取分词结果
 			while (ts.incrementToken()) {
-			  logger.info(offset.startOffset() + " - " + offset.endOffset() + " : " + term.toString() + " | " + type.type());
+				String result = offset.startOffset() + " - " + offset.endOffset() + " : " + term.toString() + " | " + type.type();
+				logger.info(result);
+				System.out.println(result);
 			}
 			//关闭TokenStream（关闭StringReader）
 			ts.end();   // Perform end-of-stream operations, e.g. set the final offset.
@@ -77,14 +84,14 @@ public class IKAnalzyerDemo {
 		} finally {
 			//释放TokenStream的所有资源
 			if(ts != null){
-		      try {
-				ts.close();
-		      } catch (IOException e) {
-				e.printStackTrace();
-		      }
+				try {
+					ts.close();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
 			}
-	    }
-		
+		}
+
 	}
 
 }
