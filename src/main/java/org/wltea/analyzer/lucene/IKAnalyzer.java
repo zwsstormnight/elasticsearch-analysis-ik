@@ -58,7 +58,7 @@ public final class IKAnalyzer extends Analyzer{
 	 */
 	public IKAnalyzer(boolean useSmart){
 		super();
-        this.useSmart = useSmart;
+        this.useSmart = useSmart?false:false;
 	}
 
 
